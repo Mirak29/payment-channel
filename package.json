@@ -12,6 +12,7 @@
     "node": "npx hardhat node",
     "deploy": "npx hardhat run scripts/deploy.ts --network localhost",
     "smart-deploy": "npx hardhat run scripts/smart-deploy.ts --network localhost",
+    "transfert": "npx hardhat run scripts/transfer-eth.ts --network localhost",
     "start": "./scripts/thunder-start.sh",
     "stop": "./scripts/thunder-stop.sh",
     "package": "npm run build && npm run package:all",

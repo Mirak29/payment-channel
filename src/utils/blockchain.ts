@@ -27,9 +27,25 @@ export class BlockchainService {
 
   private async loadContracts(): Promise<void> {
     try {
-      const deploymentPath = path.join(__dirname, "..", "..", "deployments", "localhost.json");
+      // Try multiple locations for deployment file (dev vs executable)
+      const possiblePaths = [
+        path.join(__dirname, "..", "..", "deployments", "localhost.json"), // Development
+        path.join(process.cwd(), "deployments", "localhost.json"),          // Executable from project root  
+        path.join(process.cwd(), "bin", "deployments", "localhost.json"),   // Executable from project root with bin/deployments
+        "./deployments/localhost.json",                                     // Relative from current directory
+        path.join(path.dirname(process.argv[0]), "deployments", "localhost.json"), // Next to executable
+      ];
       
-      if (fs.existsSync(deploymentPath)) {
+      let deploymentPath: string | undefined;
+      for (const testPath of possiblePaths) {
+        if (fs.existsSync(testPath)) {
+          deploymentPath = testPath;
+          console.log(`📂 Found deployment info at: ${deploymentPath}`);
+          break;
+        }
+      }
+      
+      if (deploymentPath) {
         const data = fs.readFileSync(deploymentPath, "utf8");
         this.deploymentInfo = JSON.parse(data);
         
