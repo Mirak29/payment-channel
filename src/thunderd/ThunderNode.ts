@@ -182,7 +182,29 @@ export class ThunderNode {
 
     try {
       const balance = await this.blockchainService.getBalance();
-      const channelInfo = await this.getChannelFromBlockchain();
+      
+      // Use local channel state if available (off-chain state takes priority)
+      let channelInfo;
+      if (this.currentChannel && this.currentChannel.nonce > 0) {
+        // We have local off-chain state - use it (more recent than blockchain)
+        console.log(`🔍 DEBUG: Using local channel state (nonce: ${this.currentChannel.nonce})`);
+        console.log(`🔍 DEBUG: Local state - A: ${this.currentChannel.balanceA}, B: ${this.currentChannel.balanceB}`);
+        channelInfo = {
+          state: this.currentChannel.state,
+          nonce: this.currentChannel.nonce,
+          balanceA: this.currentChannel.balanceA,
+          balanceB: this.currentChannel.balanceB,
+          closingBlock: this.currentChannel.closingBlock || 0,
+          contractBalance: (parseFloat(this.currentChannel.balanceA) + parseFloat(this.currentChannel.balanceB)).toString()
+        };
+      } else {
+        // No local state or nonce is 0, get from blockchain
+        console.log(`🔍 DEBUG: Using blockchain channel state (no local state or nonce=0)`);
+        if (this.currentChannel) {
+          console.log(`🔍 DEBUG: Local channel exists but nonce=${this.currentChannel.nonce}`);
+        }
+        channelInfo = await this.getChannelFromBlockchain();
+      }
       
       return {
         success: true,
@@ -556,9 +578,11 @@ export class ThunderNode {
       }
       
       // Update local channel state with signatures
+      console.log(`🔍 DEBUG: Before update - nonce: ${this.currentChannel.nonce}, A: ${this.currentChannel.balanceA}, B: ${this.currentChannel.balanceB}`);
       this.currentChannel.nonce = payment.nonce;
       this.currentChannel.balanceA = payment.balanceA;
       this.currentChannel.balanceB = payment.balanceB;
+      console.log(`🔍 DEBUG: After update - nonce: ${this.currentChannel.nonce}, A: ${this.currentChannel.balanceA}, B: ${this.currentChannel.balanceB}`);
       
       // Store the signature from sender
       if (senderAddress === deploymentInfo.contracts.PaymentChannel.participants.partA) {

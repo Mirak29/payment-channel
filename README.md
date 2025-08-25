@@ -6,6 +6,27 @@
 
 Thunder is a complete payment channel implementation for Ethereum, enabling instant, low-cost transactions between parties through smart contracts. The system consists of two main components: `thunderd` (the node) and `thunder-cli` (the command-line interface).
 
+## 🔧 Execution Modes
+
+Thunder supports both **development** and **production** modes:
+
+### 📦 Production Executables (Recommended for Audit)
+Cross-platform executables without external dependencies:
+```bash
+npm run package                    # Build executables
+./bin/thunderd-linux              # Start node (production)
+./bin/thunder-cli-linux --help    # CLI commands (production)
+```
+
+### 🛠️ Development Mode  
+Full development environment with live reloading:
+```bash
+npm run dev                       # Start node (development)
+npm run cli -- --help            # CLI commands (development)
+```
+
+**For audit submission, use production executables only!**
+
 ## 🚀 Features
 
 - **Smart Contracts**: ERC20 THD token and PaymentChannel contract with challenge mechanism

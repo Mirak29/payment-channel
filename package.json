@@ -15,7 +15,9 @@
     "start": "./scripts/thunder-start.sh",
     "stop": "./scripts/thunder-stop.sh",
     "package": "npm run build && npm run package:all",
-    "package:all": "pkg dist/thunderd/index.js --targets node16-linux-x64,node16-macos-x64,node16-macos-arm64,node16-win-x64 --out-path ./bin --output-name thunderd && pkg dist/thunder-cli/index.js --targets node16-linux-x64,node16-macos-x64,node16-macos-arm64,node16-win-x64 --out-path ./bin --output-name thunder-cli"
+    "package:all": "npm run package:thunderd && npm run package:cli",
+    "package:thunderd": "pkg dist/thunderd/index.js --targets node16-linux-x64 --out-path ./bin --output thunderd-linux && pkg dist/thunderd/index.js --targets node16-macos-x64 --out-path ./bin --output thunderd-macos && pkg dist/thunderd/index.js --targets node16-macos-arm64 --out-path ./bin --output thunderd-macos-arm64 && pkg dist/thunderd/index.js --targets node16-win-x64 --out-path ./bin --output thunderd-win.exe",
+    "package:cli": "pkg dist/thunder-cli/index.js --targets node16-linux-x64 --out-path ./bin --output thunder-cli-linux && pkg dist/thunder-cli/index.js --targets node16-macos-x64 --out-path ./bin --output thunder-cli-macos && pkg dist/thunder-cli/index.js --targets node16-macos-arm64 --out-path ./bin --output thunder-cli-macos-arm64 && pkg dist/thunder-cli/index.js --targets node16-win-x64 --out-path ./bin --output thunder-cli-win.exe"
   },
   "repository": {
     "type": "git",
@@ -38,7 +40,6 @@
   },
   "dependencies": {
     "@openzeppelin/contracts": "^5.4.0",
-    "axios": "^1.11.0",
     "commander": "^14.0.0",
     "ethers": "^6.15.0",
     "socket.io": "^4.8.1",
@@ -50,8 +51,7 @@
     ],
     "assets": [
       "artifacts/**/*",
-      "deployments/**/*",
-      "node_modules/axios/**/*"
+      "deployments/**/*"
     ],
     "targets": [
       "node16-linux-x64",
