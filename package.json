@@ -1,0 +1,63 @@
+{
+  "name": "payment-channel",
+  "version": "1.0.0",
+  "description": "Thunder - Ethereum Payment Channel System with instant, low-cost transactions",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "ts-node src/thunderd/index.ts",
+    "cli": "ts-node src/thunder-cli/index.ts",
+    "compile": "npx hardhat compile",
+    "test": "npx hardhat test",
+    "node": "npx hardhat node",
+    "deploy": "npx hardhat run scripts/deploy.ts --network localhost",
+    "smart-deploy": "npx hardhat run scripts/smart-deploy.ts --network localhost",
+    "start": "./scripts/thunder-start.sh",
+    "stop": "./scripts/thunder-stop.sh",
+    "package": "npm run build && npm run package:all",
+    "package:all": "pkg dist/thunderd/index.js --targets node16-linux-x64,node16-macos-x64,node16-macos-arm64,node16-win-x64 --out-path ./bin --output-name thunderd && pkg dist/thunder-cli/index.js --targets node16-linux-x64,node16-macos-x64,node16-macos-arm64,node16-win-x64 --out-path ./bin --output-name thunder-cli"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mirak29/payment-channel.git"
+  },
+  "keywords": ["ethereum", "payment-channel", "blockchain", "layer2", "lightning", "smart-contracts", "defi"],
+  "author": "Thunder Team",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Mirak29/payment-channel/issues"
+  },
+  "homepage": "https://github.com/Mirak29/payment-channel#readme",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^6.1.0",
+    "@types/node": "^24.3.0",
+    "hardhat": "^2.26.3",
+    "pkg": "^5.8.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.4.0",
+    "axios": "^1.11.0",
+    "commander": "^14.0.0",
+    "ethers": "^6.15.0",
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1"
+  },
+  "pkg": {
+    "scripts": [
+      "dist/**/*.js"
+    ],
+    "assets": [
+      "artifacts/**/*",
+      "deployments/**/*",
+      "node_modules/axios/**/*"
+    ],
+    "targets": [
+      "node16-linux-x64",
+      "node16-macos-x64", 
+      "node16-macos-arm64",
+      "node16-win-x64"
+    ]
+  }
+}

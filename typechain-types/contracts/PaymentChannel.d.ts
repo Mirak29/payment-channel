@@ -1,0 +1,227 @@
+import type { BaseContract, BigNumberish, BytesLike, FunctionFragment, Result, Interface, EventFragment, AddressLike, ContractRunner, ContractMethod, Listener } from "ethers";
+import type { TypedContractEvent, TypedDeferredTopicFilter, TypedEventLog, TypedLogDescription, TypedListener, TypedContractMethod } from "../common";
+export interface PaymentChannelInterface extends Interface {
+    getFunction(nameOrSignature: "CHALLENGE_PERIOD" | "amount" | "balanceA" | "balanceB" | "challenge" | "closing" | "closingBlock" | "fund" | "getChannelInfo" | "message" | "nonce" | "partA" | "partB" | "state" | "token" | "withdraw"): FunctionFragment;
+    getEvent(nameOrSignatureOrTopic: "ChannelChallenged" | "ChannelClosed" | "ChannelFunded" | "ChannelWithdrawn"): EventFragment;
+    encodeFunctionData(functionFragment: "CHALLENGE_PERIOD", values?: undefined): string;
+    encodeFunctionData(functionFragment: "amount", values?: undefined): string;
+    encodeFunctionData(functionFragment: "balanceA", values?: undefined): string;
+    encodeFunctionData(functionFragment: "balanceB", values?: undefined): string;
+    encodeFunctionData(functionFragment: "challenge", values: [BigNumberish, BigNumberish, BigNumberish, BytesLike]): string;
+    encodeFunctionData(functionFragment: "closing", values: [BigNumberish, BigNumberish, BigNumberish, BytesLike]): string;
+    encodeFunctionData(functionFragment: "closingBlock", values?: undefined): string;
+    encodeFunctionData(functionFragment: "fund", values?: undefined): string;
+    encodeFunctionData(functionFragment: "getChannelInfo", values?: undefined): string;
+    encodeFunctionData(functionFragment: "message", values: [BigNumberish, BigNumberish, BigNumberish]): string;
+    encodeFunctionData(functionFragment: "nonce", values?: undefined): string;
+    encodeFunctionData(functionFragment: "partA", values?: undefined): string;
+    encodeFunctionData(functionFragment: "partB", values?: undefined): string;
+    encodeFunctionData(functionFragment: "state", values?: undefined): string;
+    encodeFunctionData(functionFragment: "token", values?: undefined): string;
+    encodeFunctionData(functionFragment: "withdraw", values?: undefined): string;
+    decodeFunctionResult(functionFragment: "CHALLENGE_PERIOD", data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: "amount", data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: "balanceA", data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: "balanceB", data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: "challenge", data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: "closing", data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: "closingBlock", data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: "fund", data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: "getChannelInfo", data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: "message", data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: "nonce", data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: "partA", data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: "partB", data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: "state", data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: "token", data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: "withdraw", data: BytesLike): Result;
+}
+export declare namespace ChannelChallengedEvent {
+    type InputTuple = [challenger: AddressLike, newNonce: BigNumberish];
+    type OutputTuple = [challenger: string, newNonce: bigint];
+    interface OutputObject {
+        challenger: string;
+        newNonce: bigint;
+    }
+    type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+    type Filter = TypedDeferredTopicFilter<Event>;
+    type Log = TypedEventLog<Event>;
+    type LogDescription = TypedLogDescription<Event>;
+}
+export declare namespace ChannelClosedEvent {
+    type InputTuple = [
+        nonce: BigNumberish,
+        balanceA: BigNumberish,
+        balanceB: BigNumberish
+    ];
+    type OutputTuple = [nonce: bigint, balanceA: bigint, balanceB: bigint];
+    interface OutputObject {
+        nonce: bigint;
+        balanceA: bigint;
+        balanceB: bigint;
+    }
+    type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+    type Filter = TypedDeferredTopicFilter<Event>;
+    type Log = TypedEventLog<Event>;
+    type LogDescription = TypedLogDescription<Event>;
+}
+export declare namespace ChannelFundedEvent {
+    type InputTuple = [funder: AddressLike, amount: BigNumberish];
+    type OutputTuple = [funder: string, amount: bigint];
+    interface OutputObject {
+        funder: string;
+        amount: bigint;
+    }
+    type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+    type Filter = TypedDeferredTopicFilter<Event>;
+    type Log = TypedEventLog<Event>;
+    type LogDescription = TypedLogDescription<Event>;
+}
+export declare namespace ChannelWithdrawnEvent {
+    type InputTuple = [participant: AddressLike, amount: BigNumberish];
+    type OutputTuple = [participant: string, amount: bigint];
+    interface OutputObject {
+        participant: string;
+        amount: bigint;
+    }
+    type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+    type Filter = TypedDeferredTopicFilter<Event>;
+    type Log = TypedEventLog<Event>;
+    type LogDescription = TypedLogDescription<Event>;
+}
+export interface PaymentChannel extends BaseContract {
+    connect(runner?: ContractRunner | null): PaymentChannel;
+    waitForDeployment(): Promise<this>;
+    interface: PaymentChannelInterface;
+    queryFilter<TCEvent extends TypedContractEvent>(event: TCEvent, fromBlockOrBlockhash?: string | number | undefined, toBlock?: string | number | undefined): Promise<Array<TypedEventLog<TCEvent>>>;
+    queryFilter<TCEvent extends TypedContractEvent>(filter: TypedDeferredTopicFilter<TCEvent>, fromBlockOrBlockhash?: string | number | undefined, toBlock?: string | number | undefined): Promise<Array<TypedEventLog<TCEvent>>>;
+    on<TCEvent extends TypedContractEvent>(event: TCEvent, listener: TypedListener<TCEvent>): Promise<this>;
+    on<TCEvent extends TypedContractEvent>(filter: TypedDeferredTopicFilter<TCEvent>, listener: TypedListener<TCEvent>): Promise<this>;
+    once<TCEvent extends TypedContractEvent>(event: TCEvent, listener: TypedListener<TCEvent>): Promise<this>;
+    once<TCEvent extends TypedContractEvent>(filter: TypedDeferredTopicFilter<TCEvent>, listener: TypedListener<TCEvent>): Promise<this>;
+    listeners<TCEvent extends TypedContractEvent>(event: TCEvent): Promise<Array<TypedListener<TCEvent>>>;
+    listeners(eventName?: string): Promise<Array<Listener>>;
+    removeAllListeners<TCEvent extends TypedContractEvent>(event?: TCEvent): Promise<this>;
+    CHALLENGE_PERIOD: TypedContractMethod<[], [bigint], "view">;
+    amount: TypedContractMethod<[], [bigint], "view">;
+    balanceA: TypedContractMethod<[], [bigint], "view">;
+    balanceB: TypedContractMethod<[], [bigint], "view">;
+    challenge: TypedContractMethod<[
+        _nonce: BigNumberish,
+        _balanceA: BigNumberish,
+        _balanceB: BigNumberish,
+        _signature: BytesLike
+    ], [
+        void
+    ], "nonpayable">;
+    closing: TypedContractMethod<[
+        _nonce: BigNumberish,
+        _balanceA: BigNumberish,
+        _balanceB: BigNumberish,
+        _signature: BytesLike
+    ], [
+        void
+    ], "nonpayable">;
+    closingBlock: TypedContractMethod<[], [bigint], "view">;
+    fund: TypedContractMethod<[], [void], "nonpayable">;
+    getChannelInfo: TypedContractMethod<[
+    ], [
+        [
+            bigint,
+            bigint,
+            bigint,
+            bigint,
+            bigint,
+            bigint
+        ] & {
+            _state: bigint;
+            _nonce: bigint;
+            _balanceA: bigint;
+            _balanceB: bigint;
+            _closingBlock: bigint;
+            _contractBalance: bigint;
+        }
+    ], "view">;
+    message: TypedContractMethod<[
+        _nonce: BigNumberish,
+        _balanceA: BigNumberish,
+        _balanceB: BigNumberish
+    ], [
+        string
+    ], "view">;
+    nonce: TypedContractMethod<[], [bigint], "view">;
+    partA: TypedContractMethod<[], [string], "view">;
+    partB: TypedContractMethod<[], [string], "view">;
+    state: TypedContractMethod<[], [bigint], "view">;
+    token: TypedContractMethod<[], [string], "view">;
+    withdraw: TypedContractMethod<[], [void], "nonpayable">;
+    getFunction<T extends ContractMethod = ContractMethod>(key: string | FunctionFragment): T;
+    getFunction(nameOrSignature: "CHALLENGE_PERIOD"): TypedContractMethod<[], [bigint], "view">;
+    getFunction(nameOrSignature: "amount"): TypedContractMethod<[], [bigint], "view">;
+    getFunction(nameOrSignature: "balanceA"): TypedContractMethod<[], [bigint], "view">;
+    getFunction(nameOrSignature: "balanceB"): TypedContractMethod<[], [bigint], "view">;
+    getFunction(nameOrSignature: "challenge"): TypedContractMethod<[
+        _nonce: BigNumberish,
+        _balanceA: BigNumberish,
+        _balanceB: BigNumberish,
+        _signature: BytesLike
+    ], [
+        void
+    ], "nonpayable">;
+    getFunction(nameOrSignature: "closing"): TypedContractMethod<[
+        _nonce: BigNumberish,
+        _balanceA: BigNumberish,
+        _balanceB: BigNumberish,
+        _signature: BytesLike
+    ], [
+        void
+    ], "nonpayable">;
+    getFunction(nameOrSignature: "closingBlock"): TypedContractMethod<[], [bigint], "view">;
+    getFunction(nameOrSignature: "fund"): TypedContractMethod<[], [void], "nonpayable">;
+    getFunction(nameOrSignature: "getChannelInfo"): TypedContractMethod<[
+    ], [
+        [
+            bigint,
+            bigint,
+            bigint,
+            bigint,
+            bigint,
+            bigint
+        ] & {
+            _state: bigint;
+            _nonce: bigint;
+            _balanceA: bigint;
+            _balanceB: bigint;
+            _closingBlock: bigint;
+            _contractBalance: bigint;
+        }
+    ], "view">;
+    getFunction(nameOrSignature: "message"): TypedContractMethod<[
+        _nonce: BigNumberish,
+        _balanceA: BigNumberish,
+        _balanceB: BigNumberish
+    ], [
+        string
+    ], "view">;
+    getFunction(nameOrSignature: "nonce"): TypedContractMethod<[], [bigint], "view">;
+    getFunction(nameOrSignature: "partA"): TypedContractMethod<[], [string], "view">;
+    getFunction(nameOrSignature: "partB"): TypedContractMethod<[], [string], "view">;
+    getFunction(nameOrSignature: "state"): TypedContractMethod<[], [bigint], "view">;
+    getFunction(nameOrSignature: "token"): TypedContractMethod<[], [string], "view">;
+    getFunction(nameOrSignature: "withdraw"): TypedContractMethod<[], [void], "nonpayable">;
+    getEvent(key: "ChannelChallenged"): TypedContractEvent<ChannelChallengedEvent.InputTuple, ChannelChallengedEvent.OutputTuple, ChannelChallengedEvent.OutputObject>;
+    getEvent(key: "ChannelClosed"): TypedContractEvent<ChannelClosedEvent.InputTuple, ChannelClosedEvent.OutputTuple, ChannelClosedEvent.OutputObject>;
+    getEvent(key: "ChannelFunded"): TypedContractEvent<ChannelFundedEvent.InputTuple, ChannelFundedEvent.OutputTuple, ChannelFundedEvent.OutputObject>;
+    getEvent(key: "ChannelWithdrawn"): TypedContractEvent<ChannelWithdrawnEvent.InputTuple, ChannelWithdrawnEvent.OutputTuple, ChannelWithdrawnEvent.OutputObject>;
+    filters: {
+        "ChannelChallenged(address,uint256)": TypedContractEvent<ChannelChallengedEvent.InputTuple, ChannelChallengedEvent.OutputTuple, ChannelChallengedEvent.OutputObject>;
+        ChannelChallenged: TypedContractEvent<ChannelChallengedEvent.InputTuple, ChannelChallengedEvent.OutputTuple, ChannelChallengedEvent.OutputObject>;
+        "ChannelClosed(uint256,uint256,uint256)": TypedContractEvent<ChannelClosedEvent.InputTuple, ChannelClosedEvent.OutputTuple, ChannelClosedEvent.OutputObject>;
+        ChannelClosed: TypedContractEvent<ChannelClosedEvent.InputTuple, ChannelClosedEvent.OutputTuple, ChannelClosedEvent.OutputObject>;
+        "ChannelFunded(address,uint256)": TypedContractEvent<ChannelFundedEvent.InputTuple, ChannelFundedEvent.OutputTuple, ChannelFundedEvent.OutputObject>;
+        ChannelFunded: TypedContractEvent<ChannelFundedEvent.InputTuple, ChannelFundedEvent.OutputTuple, ChannelFundedEvent.OutputObject>;
+        "ChannelWithdrawn(address,uint256)": TypedContractEvent<ChannelWithdrawnEvent.InputTuple, ChannelWithdrawnEvent.OutputTuple, ChannelWithdrawnEvent.OutputObject>;
+        ChannelWithdrawn: TypedContractEvent<ChannelWithdrawnEvent.InputTuple, ChannelWithdrawnEvent.OutputTuple, ChannelWithdrawnEvent.OutputObject>;
+    };
+}
+//# sourceMappingURL=PaymentChannel.d.ts.map
