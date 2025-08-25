@@ -708,8 +708,16 @@ npx hardhat run scripts/transfer-eth.ts --network localhost
 ./bin/thunder-cli-linux pay 5
 ./bin/thunder-cli-linux --port 2002 pay 3
 
-# Close Channel & Withdraw
+# Close Channel (either node can close)
+./bin/thunder-cli-linux closechannel
+# OR
 ./bin/thunder-cli-linux --port 2002 closechannel
+
+# Wait for challenge period (mine blocks)
+npx hardhat run scripts/mine-blocks.ts --network localhost
+
+# Withdraw (both nodes must withdraw their funds)
+./bin/thunder-cli-linux withdraw
 ./bin/thunder-cli-linux --port 2002 withdraw
 
 # Final Balance Check
@@ -738,8 +746,57 @@ npx hardhat run scripts/transfer-eth.ts --network localhost
 | **Connect Nodes** | `./bin/thunder-cli-linux --port 2002 connect localhost:2000` | `npm run cli -- --port 2002 connect localhost:2000` |
 | **Check Balance** | `./bin/thunder-cli-linux balance` | `npm run cli balance` |
 | **Send Payment** | `./bin/thunder-cli-linux pay 5` | `npm run cli pay 5` |
+| **Close Channel** | `./bin/thunder-cli-linux closechannel` | `npm run cli closechannel` |
+| **Withdraw Funds** | `./bin/thunder-cli-linux withdraw` | `npm run cli withdraw` |
+| **Node Information** | `./bin/thunder-cli-linux infos` | `npm run cli infos` |
 
 ### 🏆 **AUDIT STATUS: ALL REQUIREMENTS PASSED - PRODUCTION READY**
+
+## ✅ Complete Command Coverage Checklist
+
+### 📋 Core Commands (Both Production & Development formats provided):
+- ✅ **Help**: `--help` for both thunderd and thunder-cli
+- ✅ **Node Startup**: thunderd with default and custom ports
+- ✅ **Wallet Import**: for both nodes with different mnemonics  
+- ✅ **Balance Checking**: wallet and channel balances
+- ✅ **Node Connection**: P2P connection between nodes
+- ✅ **Node Information**: `infos` command to check status
+- ✅ **Channel Operations**: open, close, withdraw
+- ✅ **Payment Operations**: bidirectional payments
+- ✅ **Challenge System**: challenge mechanism (advanced)
+
+### 🛠️ Utility Commands:
+- ✅ **Blockchain Setup**: node, smart-deploy, transfer-eth
+- ✅ **Block Mining**: mine-blocks.ts for challenge period
+- ✅ **Deployment Info**: localhost.json inspection
+- ✅ **Log Monitoring**: tail commands for debugging
+
+## 🔧 Advanced Commands (Optional Testing)
+
+### Challenge System Testing (Production)
+```bash
+# If you want to test the challenge mechanism:
+./bin/thunder-cli-linux challenge --nonce 2 --balance-a 90 --balance-b 110 --signature 0x...
+```
+
+### Challenge System Testing (Development)  
+```bash
+# Development equivalent:
+npm run cli challenge --nonce 2 --balance-a 90 --balance-b 110 --signature 0x...
+```
+
+### Utility Commands (Both Modes)
+```bash
+# Mine blocks to pass challenge period
+npx hardhat run scripts/mine-blocks.ts --network localhost
+
+# Check raw deployment info
+cat deployments/localhost.json
+
+# Check node logs (if running in background)
+tail -f node_a.log
+tail -f node_b.log
+```
 
 ## 🎉 Audit Summary
 

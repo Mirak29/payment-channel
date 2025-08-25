@@ -33,7 +33,7 @@ export interface WalletInfo {
 }
 
 export interface NetworkMessage {
-  type: 'CONNECT' | 'CHANNEL_OPEN' | 'PAYMENT' | 'CHANNEL_CLOSE' | 'HEARTBEAT';
+  type: 'CONNECT' | 'CHANNEL_OPEN' | 'PAYMENT' | 'CHANNEL_CLOSE' | 'CHANNEL_WITHDRAW' | 'HEARTBEAT';
   from: string;
   to?: string;
   data: any;

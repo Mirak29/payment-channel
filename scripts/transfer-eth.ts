@@ -13,12 +13,12 @@ async function main() {
   // Transfer 1 ETH for gas fees
   const tx = await deployer.sendTransaction({
     to: secondWalletAddress,
-    value: ethers.parseEther("1.0")
+    value: ethers.parseEther("100.0")
   });
   
   await tx.wait();
   
-  console.log("✅ Transferred 1.0 ETH");
+  console.log("✅ Transferred 100.0 ETH");
   
   // Check balances
   const firstWalletBalance = await ethers.provider.getBalance(deployer.address);

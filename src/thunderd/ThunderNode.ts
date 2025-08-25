@@ -25,6 +25,7 @@ export class ThunderNode {
     this.networkService.onMessage("CHANNEL_OPEN", this.handleChannelOpen.bind(this));
     this.networkService.onMessage("PAYMENT", this.handlePaymentMessage.bind(this));
     this.networkService.onMessage("CHANNEL_CLOSE", this.handleChannelClose.bind(this));
+    this.networkService.onMessage("CHANNEL_WITHDRAW", this.handleChannelWithdraw.bind(this));
     this.networkService.onMessage("HEARTBEAT", this.handleHeartbeat.bind(this));
   }
 
@@ -393,8 +394,8 @@ export class ThunderNode {
     }
 
     try {
-      // Use the stored signature from the other party's last payment
-      // We need the signature from the counterparty to prove they agreed to this state
+      // Strategy: If we don't have counterparty signature for current state,
+      // fall back to a previous state where we do have their signature
       const deploymentInfo = this.blockchainService.getDeploymentInfo();
       if (!deploymentInfo) {
         throw new Error("Deployment info not available");
@@ -402,24 +403,44 @@ export class ThunderNode {
       
       const myAddress = await this.blockchainService.getWalletAddress();
       let counterpartySignature: string;
+      let fallbackToInitialState = false;
       
       if (myAddress === deploymentInfo.contracts.PaymentChannel.participants.partA) {
         // I'm party A, need signature from party B
         counterpartySignature = this.currentChannel.signatureB || "";
       } else {
-        // I'm party B, need signature from party A
+        // I'm party B, need signature from party A  
         counterpartySignature = this.currentChannel.signatureA || "";
       }
       
-      // If we don't have a counterparty signature, generate one for initial state
-      if (!counterpartySignature && this.currentChannel.nonce === 0) {
-        // For nonce 0 (no payments made), we can close without counterparty signature
-        // The contract should allow this for the initial funded state
-        counterpartySignature = "0x" + "00".repeat(65); // Empty signature
+      // If we don't have counterparty signature for current state,
+      // we can try to close with the last state we have a signature for,
+      // or fall back to blockchain state
+      if (!counterpartySignature) {
+        console.log("⚠️  No counterparty signature for current state.");
+        
+        // Get the latest state from blockchain as fallback
+        const blockchainState = await this.getChannelFromBlockchain();
+        if (blockchainState && blockchainState.nonce < this.currentChannel.nonce) {
+          // We have newer off-chain state, but no signature - use blockchain state
+          console.log(`🔄 Falling back to blockchain state (nonce: ${blockchainState.nonce})`);
+          this.currentChannel.nonce = blockchainState.nonce;
+          this.currentChannel.balanceA = blockchainState.balanceA;
+          this.currentChannel.balanceB = blockchainState.balanceB;
+          counterpartySignature = "0x" + "00".repeat(65); // Empty signature
+          fallbackToInitialState = true;
+        } else {
+          // Try to close with current state anyway (contract might accept it)
+          console.log("🚫 Cannot close channel: no valid signature available");
+          return {
+            success: false,
+            error: "Cannot close channel without counterparty signature. Other party must close the channel."
+          };
+        }
       }
       
-      if (!counterpartySignature) {
-        throw new Error("No counterparty signature available for channel closure");
+      if (fallbackToInitialState) {
+        console.log(`🔄 Closing with fallback state (${this.currentChannel.balanceA}/${this.currentChannel.balanceB}, nonce: ${this.currentChannel.nonce})`);
       }
       
       console.log(`🔒 Closing channel with nonce ${this.currentChannel.nonce}`);
@@ -464,7 +485,20 @@ export class ThunderNode {
 
     try {
       await this.blockchainService.withdrawFunds();
-      this.currentChannel = await this.getChannelFromBlockchain();
+      
+      // Update local channel state from blockchain
+      const updatedChannel = await this.getChannelFromBlockchain();
+      this.currentChannel = updatedChannel;
+      
+      // Notify peer of withdrawal
+      const message: NetworkMessage = {
+        type: "CHANNEL_WITHDRAW",
+        from: this.networkService.getNodeInfo().address,
+        data: { channel: this.currentChannel },
+        timestamp: Date.now()
+      };
+      
+      this.networkService.sendMessage(message);
       
       return {
         success: true,
@@ -532,6 +566,7 @@ export class ThunderNode {
 
   private async handlePaymentMessage(message: NetworkMessage): Promise<void> {
     console.log(`💸 Payment received from: ${message.from}`);
+    console.log(`🔍 DEBUG: Payment data - nonce: ${message.data.nonce}, A: ${message.data.balanceA}, B: ${message.data.balanceB}`);
     const payment: PaymentMessage = message.data;
     
     if (!this.currentChannel || !this.walletLoaded) {
@@ -571,10 +606,15 @@ export class ThunderNode {
         return;
       }
       
-      // Verify nonce progression
-      if (payment.nonce !== this.currentChannel.nonce + 1) {
-        console.error(`❌ Invalid nonce: expected ${this.currentChannel.nonce + 1}, got ${payment.nonce}`);
+      // Verify nonce progression - accept higher nonces if our local state is behind
+      if (payment.nonce <= this.currentChannel.nonce) {
+        console.error(`❌ Invalid nonce: got ${payment.nonce}, but current is ${this.currentChannel.nonce}`);
         return;
+      }
+      
+      if (payment.nonce > this.currentChannel.nonce + 1) {
+        console.log(`⚠️  Nonce gap detected: jumping from ${this.currentChannel.nonce} to ${payment.nonce}`);
+        console.log(`🔄 Accepting payment but local state may be behind`);
       }
       
       // Update local channel state with signatures
@@ -599,7 +639,29 @@ export class ThunderNode {
 
   private handleChannelClose(message: NetworkMessage): void {
     console.log(`🔒 Channel close initiated by: ${message.from}`);
-    this.currentChannel = message.data.channel;
+    if (this.currentChannel && message.data.channel) {
+      // Update our local state to match the closing state
+      this.currentChannel.state = "CLOSING";
+      this.currentChannel.closingBlock = message.data.channel.closingBlock;
+      // Keep our local balances and nonce unless they're more recent
+      if (message.data.channel.nonce >= this.currentChannel.nonce) {
+        this.currentChannel.nonce = message.data.channel.nonce;
+        this.currentChannel.balanceA = message.data.channel.balanceA;
+        this.currentChannel.balanceB = message.data.channel.balanceB;
+      }
+      console.log(`📊 Updated local state to CLOSING: A=${this.currentChannel.balanceA}, B=${this.currentChannel.balanceB}`);
+    }
+  }
+
+  private handleChannelWithdraw(message: NetworkMessage): void {
+    console.log(`💸 Channel withdrawal completed by: ${message.from}`);
+    if (this.currentChannel && message.data.channel) {
+      // Update our local state
+      this.currentChannel.state = message.data.channel.state;
+      this.currentChannel.balanceA = message.data.channel.balanceA;
+      this.currentChannel.balanceB = message.data.channel.balanceB;
+      console.log(`📊 Updated local state after withdrawal: ${this.currentChannel.state} - A=${this.currentChannel.balanceA}, B=${this.currentChannel.balanceB}`);
+    }
   }
 
   private handleHeartbeat(message: NetworkMessage): void {
