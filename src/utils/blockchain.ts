@@ -37,11 +37,18 @@ export class BlockchainService {
       ];
       
       let deploymentPath: string | undefined;
+      console.log(`🔍 DEBUG: Searching for deployment file...`);
+      console.log(`🔍 DEBUG: Current working directory: ${process.cwd()}`);
+      console.log(`🔍 DEBUG: __dirname: ${__dirname}`);
+      console.log(`🔍 DEBUG: process.argv[0]: ${process.argv[0]}`);
       for (const testPath of possiblePaths) {
+        console.log(`🔍 DEBUG: Testing path: ${testPath}`);
         if (fs.existsSync(testPath)) {
           deploymentPath = testPath;
           console.log(`📂 Found deployment info at: ${deploymentPath}`);
           break;
+        } else {
+          console.log(`❌ Not found: ${testPath}`);
         }
       }
       
